@@ -271,21 +271,6 @@ fn main() -> Result<()> {
 		return Ok(());
 	}
 
-	let generator_build = if cfg!(feature = "clang-runtime") { // start building binding generator as early as possible
-		let cargo_bin = PathBuf::from(env::var_os("CARGO").unwrap_or_else(|| "cargo".into()));
-		let mut cargo = Command::new(cargo_bin);
-		// generator script is quite slow in debug mode, so we force it to be built in release mode
-		cargo.args(&["build", "--release", "--package", "opencv-binding-generator", "--bin", "binding-generator"])
-			.env("CARGO_TARGET_DIR", &*OUT_DIR);
-		if let Some(host_triple) = HOST_TRIPLE.as_ref() {
-			cargo.args(&["--target", host_triple]);
-		}
-		println!("running: {:?}", &cargo);
-		Some(cargo.spawn()?)
-	} else {
-		None
-	};
-
 	eprintln!("=== Crate version: {:?}", env::var_os("CARGO_PKG_VERSION"));
 	eprintln!("=== Environment configuration:");
 	for &v in ENV_VARS.iter() {
